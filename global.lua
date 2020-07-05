@@ -1,37 +1,49 @@
-
 --[[ Lua code. See documentation: https://api.tabletopsimulator.com/ --]]
 
---[[ The onLoad event is called after the game save finishes loading. --]]
-function onLoad()
-    --[[ print('onLoad!') --]]
-end
+--[[
+GLOBAL CONSTANTS
 
---[[ The onUpdate event is called once per frame. --]]
-function onUpdate()
-    --[[ print('onUpdate loop!') --]]
-end
+NOTE: GUIDs need to be adjusted to match "template objects" or "primary"
+objects since the code refers to singleton objects by GUID.
+--]]
+DM_ZONE_GUID = "a35d72"
+CARD_TEMPLATE_GUID = "9c78cc"
+
 
 function onObjectEnterScriptingZone(zone_guid, obj)
-    if (zone_guid.getGUID() == "a35d72") then
 
+    -- Handle turning objects invisible/uninteractable
+    -- if they enter/exit the DM zone
+    if (DM_ZONE_GUID == zone_guid.getGUID()) then
         obj.setInvisibleTo({
             "Blue", "Pink", "Green", "Yellow",
             "Orange", "White", "Teal", "Purple", "Red"
         })
     end
-
 end
 
 
 function onObjectLeaveScriptingZone(zone_guid, obj)
-    if (zone_guid.getGUID() == "a35d72") then
-
+    -- Handle turning objects invisible/uninteractable
+    -- if they enter/exit the DM zone
+    if (DM_ZONE_GUID == zone_guid.getGUID()) then
+        -- This overwrites the "hide-set", so this makes it hidden
+        -- to no one.
         obj.setInvisibleTo({})
     end
-
 end
 
 
+--[[
+Utility function to split a string on a sequence of characters.
+
+Params:
+- inputstr - The string to split.
+- sep - The separation string to split on.
+
+Returns:
+A table of strings with the separators removed.
+--]]
 function splitstr (inputstr, sep)
   if sep == nil then
     sep = "%s"
@@ -44,24 +56,47 @@ function splitstr (inputstr, sep)
 end
 
 
+--[[
+Returns the JSON of the card template object.
+--]]
 function getCardTemplateJSON()
-  return getObjectFromGUID('9c78cc').getJSON()
+  return getObjectFromGUID(CARD_TEMPLATE_GUID).getJSON()
 end
 
+
+--[[
+Handles the processing of admin commands.
+
+NOTE: you must be player "Black" to trigger admin commands currently.
+This is so that trolls and other disruptive users cannot just maliciously
+run commands and possibly cause TTS to crash.
+
+NOTE: Be careful with running commands that spawn too many cards. TTS
+can perform web queries fairly cheaply, but spawning objects is a relatively
+expensive operation once you start spawning more than 5 objects per second,
+especially if they have scripts attached to them.
+--]]
 function onChat(message, player)
+  -- Make sure that the chat commands only work with the GM/host.
   if player.color == 'Black' then
+    -- Split the single line of chat by space by default.
     local args = splitstr(message)
+
+    -- Treat the first space-delimited string as special, and assume it holds
+    -- the command name.
     local command_name = args[1]
     table.remove(args, 1)
-    if string.find(command_name, '#cards_id') or string.find(command_name, '#ci') == 1 then
-      log("#cards_id command triggered", 'DEBUG')
+
+    --
+    if string.find(command_name, '#get_card') or string.find(command_name, '#gc') == 1 then
+      log("#get_card command triggered", 'DEBUG')
       command_card_id(args)
-    elseif string.find(command_name, '#cs') or string.find(command_name, '#cs') == 1 then
-      log("#card_set command triggered", 'DEBUG')
-      command_card_set(args)
-    elseif string.find(command_name, '#qcs') or string.find(command_name, '#query_card_set') == 1 then
-      log("#query_card_set command triggered", 'DEBUG')
-      command_query_card_set(args)
+    elseif string.find(command_name, '#get_deck') or string.find(command_name, '#gd') == 1 then
+      log("#get_deck command triggered", 'DEBUG')
+      command_deck(args)
+    elseif string.find(command_name, '#query_deck') or string.find(command_name, '#qd') == 1 then
+      log("#query_deck command triggered", 'DEBUG')
+      command_query_deck(args)
     end
   end
 end
@@ -80,10 +115,10 @@ function command_card_id(args)
   end
 end
 
-function command_card_set(args)
-  WebRequest.get("localhost:8000/user_set/" .. args[1], function (payload)
+function command_deck(args)
+  WebRequest.get("localhost:8000/decks/" .. args[1], function (payload)
     if payload.is_error then
-      print('Error loading user set ' .. self.getVar('card_id'))
+      print('Error loading deck ' .. self.getVar('card_id'))
       return
     end
     decodedTable = JSON.decode(payload.text)
@@ -105,10 +140,10 @@ function command_card_set(args)
 end
 
 
-function command_query_card_set(args)
-  WebRequest.get("localhost:8000/search/user_set/" .. args[1], function (payload)
+function command_query_deck(args)
+  WebRequest.get("localhost:8000/search/decks/" .. args[1], function (payload)
     if payload.is_error then
-      print('Error querying user set ' .. self.getVar('card_id'))
+      print('Error querying deck ' .. self.getVar('card_id'))
       return
     end
     decodedTable = JSON.decode(payload.text)
@@ -133,6 +168,10 @@ function spawn_callback(object_spawned, arg)
   object_spawned.call('handleCardSync', {})
 end
 
+
+--[[
+Utility fucntion to print a table with identation pretty-printing.
+--]]
 function tprint (tbl, indent)
   if not indent then indent = 0 end
   for k, v in pairs(tbl) do

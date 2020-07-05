@@ -1,4 +1,29 @@
-card_attributes = {'card_name', 'card_type', 'card_desc', 'card_combat', 'card_id'}
+CARD_ATTRIBUTES_ALPHA1 = {
+  --'card_save_version',
+  'card_name',
+  'card_type',
+  'card_desc',
+  'card_combat',
+  'card_id'
+}
+
+CARD_ATTRIBUTES_ALPHA2 = {
+  'card_save_version',
+  'card_id',
+  'card_action',
+  'card_speed',
+  'card_name',
+  'card_desc'
+}
+
+CARD_ATTRIBUTES = CARD_ATTRIBUTES_ALPHA1
+
+SAVE_VERSIONS = {
+  "ALPHA1",
+  "ALPHA2"
+}
+
+CURRENT_SAVE_VERSION = "ALPHA2"
 
 
 function onSave()
@@ -10,19 +35,25 @@ function syncDataFromExternalTable(t)
   syncDataFromTable(t['t'])
 end
 
+
 function syncDataFromTable(t)
   storeAttrForThisObject('card_id', t['id'])
   storeAttrForThisObject('card_name', t['name'])
-  storeAttrForThisObject('card_type', t['cardtype'])
+  storeAttrForThisObject('card_type', t['cardclass'])
+  storeAttrForThisObject('card_cardclass', t['cardclass'])
   storeAttrForThisObject('card_desc', t['desc'])
-  storeAttrForThisObject('card_combat', t['cost'])
+  storeAttrForThisObject('card_combat', t['speed'] .. ' / ' .. t['action'])
+  storeAttrForThisObject('card_speed', t['speed'])
+  storeAttrForThisObject('card_action', t['action'])
+  storeAttrForThisObject('card_save_version', CURRENT_SAVE_VERSION)
   syncAllAttrToUI()
   log('Success syncing id ' .. t['id'], 'DEBUG')
 end
 
+
 function prepareSaveState()
   local data_table = {}
-  for _, attr in ipairs(card_attributes) do
+  for _, attr in ipairs(CARD_ATTRIBUTES) do
     data_table[attr] = self.getVar(attr)
   end
   save_state = JSON.encode(data_table)
@@ -32,12 +63,13 @@ end
 
 
 function onDrop(player_color)
-    syncAllAttrToUI()
+  syncAllAttrToUI()
 end
 
 
 function onPickUp(player_color)
-    syncAllAttrToUI()
+  prepareSaveState()
+  syncAllAttrToUI()
 end
 
 
@@ -56,13 +88,14 @@ function onLoad(save_state)
   else
     log(string.format('Save data for %s not found', self.getGUID()), self.getGUID(), 'DEBUG')
   end
+
   syncAllAttrToUI()
   self.setVar('isReadOnly', true)
 end
 
 
 function handleCardReadAloud(player, value, id)
-  printToAll(string.format('%s reads card #%s "%s" (%s):\n"%s"\nCost: %s',
+  printToAll(string.format('%s reads card #%s "%s" (%s):\n"%s"\nSpeed/Action: %s',
   tostring(player.color),
   tostring(self.getVar('card_id')),
   tostring(self.getVar('card_name')),
@@ -91,7 +124,7 @@ end
 
 
 function syncAllAttrToUI()
-    for _, attr in ipairs(card_attributes) do
+    for _, attr in ipairs(CARD_ATTRIBUTES) do
       self.UI.setAttribute(attr .. '_text', 'text', self.getVar(attr))
       self.UI.setAttribute(attr, 'text', self.getVar(attr))
     end
@@ -103,7 +136,7 @@ function handleCardLock()
   isReadOnly = self.getVar('isReadOnly')
   if isReadOnly then
     -- Turn card editable
-    for _, attr in ipairs(card_attributes) do
+    for _, attr in ipairs(CARD_ATTRIBUTES) do
       --print(attr .. ' ' .. self.getVar(attr))
       self.UI.setAttribute(attr, 'active', "True")
       self.UI.setAttribute(attr, 'text', self.getVar(attr))
@@ -114,7 +147,7 @@ function handleCardLock()
     self.UI.setAttribute('card_id', 'text', self.getVar(attr))
   else
     -- Sync edits
-    for _, attr in ipairs(card_attributes) do
+    for _, attr in ipairs(CARD_ATTRIBUTES) do
       --print(attr .. ' ' .. self.getVar(attr))
       self.UI.setAttribute(attr, 'text', self.getVar(attr))
       self.UI.setAttribute(attr, 'active', "False")
@@ -152,13 +185,17 @@ function handleCardData(payload)
     print('Error loading id ' .. self.getVar('card_id'))
     return
   end
-  decodedTable = JSON.decode(payload.text)
-  storeAttrForThisObject('card_id', decodedTable['id'])
-  storeAttrForThisObject('card_name', decodedTable['name'])
-  storeAttrForThisObject('card_type', decodedTable['cardtype'])
-  storeAttrForThisObject('card_desc', decodedTable['desc'])
-  storeAttrForThisObject('card_combat', decodedTable['cost'])
-  log('Success syncing id ' .. decodedTable['id'], 'DEBUG')
+  t = JSON.decode(payload.text)
+  storeAttrForThisObject('card_id', t['id'])
+  storeAttrForThisObject('card_name', t['name'])
+  storeAttrForThisObject('card_type', t['cardclass'])
+  storeAttrForThisObject('card_cardclass', t['cardclass'])
+  storeAttrForThisObject('card_desc', t['desc'])
+  storeAttrForThisObject('card_combat', t['speed'] .. ' / ' .. t['action'])
+  storeAttrForThisObject('card_speed', t['speed'])
+  storeAttrForThisObject('card_action', t['action'])
+  storeAttrForThisObject('card_save_version', CURRENT_SAVE_VERSION)
+  log('Success syncing id ' .. t['id'], 'DEBUG')
 end
 
 
