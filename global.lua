@@ -87,16 +87,21 @@ function onChat(message, player)
     local command_name = args[1]
     table.remove(args, 1)
 
-    --
+    -- Match the command name if possible
     if string.find(command_name, '#get_card') or string.find(command_name, '#gc') == 1 then
       log("#get_card command triggered", 'DEBUG')
       command_card_id(args)
     elseif string.find(command_name, '#get_deck') or string.find(command_name, '#gd') == 1 then
       log("#get_deck command triggered", 'DEBUG')
       command_deck(args)
-    elseif string.find(command_name, '#query_deck') or string.find(command_name, '#qd') == 1 then
-      log("#query_deck command triggered", 'DEBUG')
-      command_query_deck(args)
+    elseif string.find(command_name, '#query_decks') or string.find(command_name, '#qd') == 1 then
+      log("#query_decks command triggered", 'DEBUG')
+      command_query_decks(args)
+    elseif string.find(command_name, '#query_cards') or string.find(command_name, '#qc') == 1 then
+      log("#query_cards command triggered", 'DEBUG')
+      command_query_cards(args)
+    else
+      printToColor('"' .. command_name .. '" is not a valid command', 'Black')
     end
   end
 end
@@ -140,7 +145,7 @@ function command_deck(args)
 end
 
 
-function command_query_deck(args)
+function command_query_decks(args)
   WebRequest.get("localhost:8000/search/decks/" .. args[1], function (payload)
     if payload.is_error then
       print('Error querying deck ' .. self.getVar('card_id'))
@@ -151,6 +156,23 @@ function command_query_deck(args)
     local s = ''
     for i, v in ipairs(decodedTable) do
       s = s .. ' ' .. v['name']
+    end
+    printToColor(s, 'Black')
+  end)
+end
+
+
+function command_query_cards(args)
+  WebRequest.get("localhost:8000/search/cards/" .. args[1], function (payload)
+    if payload.is_error then
+      print('Error querying cards ' .. self.getVar('card_id'))
+      return
+    end
+    decodedTable = JSON.decode(payload.text)
+
+    local s = ''
+    for i, v in ipairs(decodedTable) do
+      s = s .. ' (#' .. v['id'] .. ')"' .. v['name'] .. '"'
     end
     printToColor(s, 'Black')
   end)
