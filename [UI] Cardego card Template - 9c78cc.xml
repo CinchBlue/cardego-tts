@@ -1,0 +1,177 @@
+<Defaults>
+  <InputField class="card_field" colors="#FFFFFF|White|#C8C8C8|rgba(0.95,0.95,0.95,0.95)" />
+</Defaults>
+
+<!-- Card Type -->
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="40"
+  height="40"
+  rotation="0 0 -180"
+  position="80 -130 -120">
+  <InputField
+    active="False"
+    characterLimit="2"
+    fontStyle="bold"
+    lineType="MultiLineSubmit"
+    class="card_field"
+    id="card_type"
+    placeholder="CT"
+    onEndEdit="handleCardAttributeUpdate">
+  </InputField>
+
+</HorizontalLayout>
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="40"
+  height="40"
+  rotation="0 0 -180"
+  position="80 -130 -120">
+  <Text
+    active="False"
+    fontStyle="bold"
+    class="card_text"
+    id="card_type_text">
+  </Text>
+</HorizontalLayout>
+
+<!-- Card Name -->
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="150"
+  height="30"
+  rotation="0 0 -180"
+  position="-20 -130 -120">
+  <InputField
+    active="False"
+    resizeTextForBestFit="true"
+    fontStyle="bold"
+    lineType="MultiLineSubmit"
+    class="card_field"
+    id="card_name"
+    placeholder="Name"
+    onEndEdit="handleCardAttributeUpdate">
+  </InputField>
+
+</HorizontalLayout>
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="150"
+  height="30"
+  rotation="0 0 -180"
+  position="-20 -130 -120">
+  <Text
+    active="False"
+    resizeTextForBestFit="true"
+    fontStyle="bold"
+    class="card_text"
+    id="card_name_text">
+  </Text>
+
+</HorizontalLayout>
+
+<!-- Card Combat -->
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="190"
+  height="25"
+  rotation="0 0 -180"
+  position="0 25 -120">
+  <InputField
+    active="False"
+    class="card_field"
+    id="card_combat"
+    resizeTextForBestFit="true"
+    placeholder="Combat Effects"
+    lineType="MultiLineSubmit"
+    onEndEdit="handleCardAttributeUpdate">
+  </InputField>
+
+</HorizontalLayout>
+<HorizontalLayout
+  active="False"
+  color="rgba(1,1,1,0.05)"
+  width="190"
+  height="25"
+  rotation="0 0 -180"
+  position="0 25 -120">
+  <Text
+    active="False"
+    class="card_text"
+    id="card_combat_text">
+  </Text>
+</HorizontalLayout>
+
+<!-- Card Description -->
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="190"
+  height="90"
+  rotation="0 0 -180"
+  position="0 95 -120">
+  <InputField
+    active="False"
+    fontStyle="italic"
+    lineType="MultiLineSubmit"
+    class="card_field"
+    id="card_desc"
+    placeholder="Card Description"
+    onEndEdit="handleCardAttributeUpdate">
+  </InputField>
+
+</HorizontalLayout>
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="190"
+  height="90"
+  rotation="0 0 -180"
+  position="0 95 -120">
+  <Text
+    active="False"
+    fontStyle="italic"
+    class="card_text"
+    id="card_desc_text">
+  </Text>
+</HorizontalLayout>
+
+<!-- Buttons -->
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="190"
+  height="20"
+  rotation="0 0 -180"
+  position="0 147 -120">
+  <Button
+    color="rgb(0.98, 0.95, 0.95)"
+    id="button_read"
+    onClick="handleCardReadAloud">Read</Button>
+
+  <Button
+    active="False"
+    color="rgb(0.98, 0.95, 0.95)"
+    id="button_lock"
+    onClick="handleCardLock">Un/lock</Button>
+</HorizontalLayout>
+
+<!-- WebRequest buttons -->
+<HorizontalLayout
+  color="rgba(1,1,1,0.05)"
+  width="190"
+  height="30"
+  rotation="0 0 -180"
+  position="0 -45 -120">
+  <InputField
+    active="False"
+    fontStyle="italic"
+    lineType="MultiLineSubmit"
+    class="card_field"
+    id="card_id"
+    placeholder="ID"
+    onEndEdit="handleCardAttributeUpdate">
+  </InputField>
+  <Button
+    active="False"
+    color="rgb(0.98, 0.95, 0.95)"
+    id="button_sync"
+    onClick="handleCardSync">Load</Button>
+</HorizontalLayout>

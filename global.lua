@@ -180,8 +180,10 @@ end
 
 
 function spawn_with_data_ready_callback(object_spawned, cardData)
-  object_spawned.setVar('card_id', cardData['id'])
-  object_spawned.call('syncDataFromTable', cardData)
+  object_spawned.setVar('cadr_id', cardData['id'])
+  object_spawned.call('handleCardSync')
+  --object_spawned.setVar('card_id', cardData['id'])
+  --object_spawned.call('syncDataFromTable', cardData)
 end
 
 

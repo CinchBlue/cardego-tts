@@ -20,10 +20,11 @@ CARD_ATTRIBUTES = CARD_ATTRIBUTES_ALPHA1
 
 SAVE_VERSIONS = {
   "ALPHA1",
-  "ALPHA2"
+  "ALPHA2",
+  "ALPHA3"
 }
 
-CURRENT_SAVE_VERSION = "ALPHA2"
+CURRENT_SAVE_VERSION = "ALPHA3"
 
 
 function onSave()
@@ -45,6 +46,7 @@ function syncDataFromTable(t)
   storeAttrForThisObject('card_combat', t['speed'] .. ' / ' .. t['action'])
   storeAttrForThisObject('card_speed', t['speed'])
   storeAttrForThisObject('card_action', t['action'])
+  storeAttrForThisObject('card_image_url', t['image_url'])
   storeAttrForThisObject('card_save_version', CURRENT_SAVE_VERSION)
   syncAllAttrToUI()
   log('Success syncing id ' .. t['id'], 'DEBUG')
@@ -194,7 +196,17 @@ function handleCardData(payload)
   storeAttrForThisObject('card_combat', t['speed'] .. ' / ' .. t['action'])
   storeAttrForThisObject('card_speed', t['speed'])
   storeAttrForThisObject('card_action', t['action'])
+  storeAttrForThisObject('card_image_url', t['image_url'])
   storeAttrForThisObject('card_save_version', CURRENT_SAVE_VERSION)
+
+  self.setCustomObject({
+    face = 'localhost:8000/cards/' .. t['id'] .. '/image.png',
+    back = "http://cloud-3.steamusercontent.com/ugc/1017193127284955248/A6F93DB541612951E19709C01B863B94BA79FC04/",
+    width = 1,
+    height = 1,
+    number = 1
+  })
+
   log('Success syncing id ' .. t['id'], 'DEBUG')
 end
 
